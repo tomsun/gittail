@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import subprocess
+import time
 from growl import Growl
 import config
 
@@ -42,7 +43,9 @@ class GitTail():
         print error
 
     def run(self):
-        self.fetch()
+        while True:
+            self.fetch()
+            time.sleep(config.poll_interval)
 
 
 if __name__ == "__main__":
