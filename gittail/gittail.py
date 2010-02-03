@@ -15,6 +15,8 @@ Author: Tom Sundström
 class GitTail():
     def __init__(self):
         self.commits = {}
+        self.commits_by_author = {}
+        self.commits_by_committer = {}
         self.growler = Growl.GrowlNotifier(applicationName='GitTail', notifications=['commit'])
         self.growler.register()
 
@@ -63,6 +65,12 @@ class GitTail():
                     commit[id] = commit_parts.pop()
                 print "Found commit %s" % str(commit)
                 self.commits[commit['hash']] = commit
+                if not self.commits_by_author.has_key(commit['author']):
+                    self.commits_by_author[commit['author']] = []
+                self.commits_by_author[commit['author']].append(commit)
+                if not self.commits_by_committer.has_key(commit['committer']):
+                    self.commits_by_committer[commit['committer']] = []
+                self.commits_by_committer[commit['committer']].append(commit)
 
 
     def run(self):
