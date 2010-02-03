@@ -64,6 +64,15 @@ class GitTail():
                 for id in commit_keys:
                     commit[id] = commit_parts.pop()
                 print "Found commit %s" % str(commit)
+                if not self.commits.has_key(commit['hash']):
+                    headline = "%s committed" % commit['committer']
+                    desc = "%s" % current_repo
+                    desc += "\n%s" % commit['subject']
+                    desc += "\n%s" % commit['time']
+                    if commit['author'] != commit['committer']:
+                        desc += "\nAuthor: %s" % commit['author']
+                    desc += "\n%s" % commit['hash']
+                    self.notify(headline, desc)
                 self.commits[commit['hash']] = commit
                 if not self.commits_by_author.has_key(commit['author']):
                     self.commits_by_author[commit['author']] = []
