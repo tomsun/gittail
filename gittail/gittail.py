@@ -14,6 +14,7 @@ Author: Tom Sundström
 """
 class GitTail():
     def __init__(self):
+        self.commits = {}
         self.growler = Growl.GrowlNotifier(applicationName='GitTail', notifications=['commit'])
         self.growler.register()
 
@@ -61,6 +62,7 @@ class GitTail():
                 for id in commit_keys:
                     commit[id] = commit_parts.pop()
                 print "Found commit %s" % str(commit)
+                self.commits[commit['hash']] = commit
 
 
     def run(self):
