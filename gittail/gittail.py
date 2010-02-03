@@ -39,8 +39,16 @@ class GitTail():
             stderr = subprocess.PIPE
         )
         result, error = p.communicate()
-        print result
-        print error
+
+        current_repo = None
+        for line in result.split("\n"):
+            if line[0:5] == 'repo=':
+                current_repo = line[5:]
+                print "Checking repository %s" % current_repo
+            elif line[0:7] == 'commit=':
+                commit_msg = line[7:]
+                print "Found commit %s" % commit_msg
+
 
     def run(self):
         while True:
