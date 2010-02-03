@@ -24,6 +24,8 @@ class GitTail():
         self.growler.notify('commit', headline, message)
 
     def fetch(self):
+        digest = (False, True)[len(self.commits) == 0]
+
         # Commit format
         # man git-log for details:
         commit_data = {
@@ -64,7 +66,7 @@ class GitTail():
                 for id in commit_keys:
                     commit[id] = commit_parts.pop()
                 print "Found commit %s" % str(commit)
-                if not self.commits.has_key(commit['hash']):
+                if not self.commits.has_key(commit['hash']) and not digest:
                     headline = "%s committed" % commit['committer']
                     desc = "%s" % current_repo
                     desc += "\n%s" % commit['subject']
@@ -80,6 +82,18 @@ class GitTail():
                 if not self.commits_by_committer.has_key(commit['committer']):
                     self.commits_by_committer[commit['committer']] = []
                 self.commits_by_committer[commit['committer']].append(commit)
+
+        if digest:
+            # Fist run, just summarize status
+            headline = "Commit activity last 24 hours"
+            if len(self.commits) == 0:
+                self.notify(headline, "No activity")
+            else:
+                author_info = []
+                for author in self.commits_by_author:
+                    commit_count = len(self.commits_by_author[author])
+                    author_info.append("%s %d %s" % (author, commit_count, ('commits', 'commit')[commit_count == 1]))
+                self.notify(headline, "\n".join(author_info))
 
 
     def run(self):
