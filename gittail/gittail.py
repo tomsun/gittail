@@ -23,7 +23,15 @@ class GitTail():
     def fetch(self):
         # Commit format
         # man git-log for details:
-        commit_format = '%H|%cn|%an|%cr|%s'
+        commit_data = {
+            'hash': '%H',
+            'committer': '%cn',
+            'author': '%an',
+            'time': '%cr',
+            'subject': '%s',
+        }
+        commit_delimiter = '|'
+        commit_format = commit_delimiter.join(commit_data.values())
 
         # Time period to watch
         since = '1 day ago'
