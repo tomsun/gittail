@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from growl import Growl
+import config
 
 
 """
