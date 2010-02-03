@@ -31,6 +31,7 @@ class GitTail():
             'subject': '%s',
         }
         commit_delimiter = '|'
+        commit_keys = commit_data.keys()
         commit_format = commit_delimiter.join(commit_data.values())
 
         # Time period to watch
@@ -54,8 +55,12 @@ class GitTail():
                 current_repo = line[5:]
                 print "Checking repository %s" % current_repo
             elif line[0:7] == 'commit=':
-                commit_msg = line[7:]
-                print "Found commit %s" % commit_msg
+                commit_parts = line[7:].split(commit_delimiter)
+                commit_parts.reverse()
+                commit = {}
+                for id in commit_keys:
+                    commit[id] = commit_parts.pop()
+                print "Found commit %s" % str(commit)
 
 
     def run(self):
