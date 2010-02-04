@@ -66,7 +66,7 @@ class GitTail():
                 for id in commit_keys:
                     commit[id] = commit_parts.pop()
                 print "Found commit %s" % str(commit)
-                if not self.commits.has_key(commit['hash']) and not digest:
+                if not digest and (not self.commits_by_committer.has_key(commit['committer']) or not self.commits_by_committer[commit['committer']].has_key(commit['hash'])):
                     headline = "%s committed" % commit['committer']
                     desc = "%s" % current_repo
                     desc += "\n%s" % commit['subject']
