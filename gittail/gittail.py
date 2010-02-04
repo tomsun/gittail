@@ -77,11 +77,11 @@ class GitTail():
                     self.notify(headline, desc)
                 self.commits[commit['hash']] = commit
                 if not self.commits_by_author.has_key(commit['author']):
-                    self.commits_by_author[commit['author']] = []
-                self.commits_by_author[commit['author']].append(commit)
+                    self.commits_by_author[commit['author']] = {}
+                self.commits_by_author[commit['author']][commit['hash']] = commit
                 if not self.commits_by_committer.has_key(commit['committer']):
-                    self.commits_by_committer[commit['committer']] = []
-                self.commits_by_committer[commit['committer']].append(commit)
+                    self.commits_by_committer[commit['committer']] = {}
+                self.commits_by_committer[commit['committer']][commit['hash']] = commit
 
         if digest:
             # Fist run, just summarize status
