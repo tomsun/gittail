@@ -34,3 +34,4 @@ local_repo_paths = [
 # in addition to printing to the console
 #
 # use_growl = True        # OS X (default: True)
+# use_libnotify = True    # Linux (default: True)
