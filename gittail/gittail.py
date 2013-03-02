@@ -54,6 +54,7 @@ class GitTail():
 
 
     def notify(self, headline, message):
+        self.log("\n- %s: %s\n" % (headline, message))
         self.growler.notify('commit', headline, message)
 
 
