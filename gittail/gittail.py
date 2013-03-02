@@ -74,6 +74,7 @@ class GitTail():
         for host in ssh_hosts:
             self.log("Checking SSH host '%s'" % host["host"], 1)
             for path in host["repo_paths"]:
+                self.log("Checking repo pattern '%s'" % path, 2)
                 result = self.poll_ssh_host(host["host"], path)
                 for commit in result:
                     new_commits.append(commit)
