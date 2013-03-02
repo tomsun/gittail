@@ -55,7 +55,14 @@ class GitTail():
     def poll(self):
         first_run = (False, True)[len(self.commits) == 0]
 
-        new_commits = self.poll_ssh_host(self._config("host"), self._config("repo_path"))
+        new_commits = []
+
+        ssh_hosts = self._config("ssh_hosts")
+        for host in ssh_hosts:
+            for path in host["repo_paths"]:
+                result = self.poll_ssh_host(host["host"], path)
+                for commit in result:
+                    new_commits.append(commit)
 
         if first_run:
             self.send_first_run_notification()
