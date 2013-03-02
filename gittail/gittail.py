@@ -189,10 +189,12 @@ class GitTail():
                 for id in self._git_log_commit_data.keys():
                     commit[id] = commit_parts.pop()
                 commit['repo'] = current_repo
-                self.log("Found commit %s" % str(commit), 3)
 
                 if not self.commits_by_committer.has_key(commit['committer']) or not self.commits_by_committer[commit['committer']].has_key(commit['hash']):
                     new_commits.append(commit)
+                    self.log("Found new commit %s" % str(commit), 3)
+                else:
+                    self.log("Found previously seen commit %s" % str(commit), 4)
 
                 self.commits[commit['hash']] = commit
                 if not self.commits_by_author.has_key(commit['author']):
