@@ -19,6 +19,17 @@ class GitTail():
         self.growler = Growl.GrowlNotifier(applicationName='GitTail', notifications=['commit'])
         self.growler.register()
 
+        # Properties to extract when using git log
+        # man git-log for details:
+        self._git_log_commit_data = {
+            'hash': '%H',
+            'committer': '%cn',
+            'author': '%an',
+            'time': '%cr',
+            'subject': '%s',
+        }
+        self._git_log_commit_delimiter = '|'
+
         try:
             self._config_value = kwargs["config"]
         except KeyError:
@@ -42,57 +53,75 @@ class GitTail():
         self.growler.notify('commit', headline, message)
 
     def fetch(self):
-        digest = (False, True)[len(self.commits) == 0]
+        first_run = (False, True)[len(self.commits) == 0]
 
-        # Commit format
-        # man git-log for details:
-        commit_data = {
-            'hash': '%H',
-            'committer': '%cn',
-            'author': '%an',
-            'time': '%cr',
-            'subject': '%s',
-        }
-        commit_delimiter = '|'
-        commit_keys = commit_data.keys()
-        commit_format = commit_delimiter.join(commit_data.values())
+        new_commits = self.poll_ssh_host(self._config("host"), self._config("repo_path"))
+
+        if first_run:
+            self.send_first_run_notification()
+            return
+
+        if len(new_commits) > 0:
+            for commit in new_commits:
+                self.send_commit_notification(commit)
+
+
+    """
+    Returns as string containing the git log command including all parameters
+    required to produce a list of commits in the format that
+    _parse_git_log_result() expects.
+    """
+    def _git_log_command(self):
+        commit_format = self._git_log_commit_delimiter.join(self._git_log_commit_data.values())
 
         # Time period to watch
         since = '1 day ago'
 
-        # Fetch commit info using SSH and Git on remote server
+        return 'git log --pretty=format:"commit=' + commit_format + '%n" --all --since="' + since + '"'
+
+
+    def _repo_iteration_command(self, repo_path):
+        return 'for repo in $( ls -d %s ) ; do if [ -d $repo ] ; then cd $repo ; echo "repo=$repo" ; %s ; fi ; done' % (repo_path, self._git_log_command())
+
+    """
+    Fetches commit info from a remote server using SSH and git log
+    """
+    def poll_ssh_host(self, host, repo_path):
         p = subprocess.Popen(
             [
                 'ssh',
-                self._config("host"),
-                'for repo in $( ls -d ' + self._config("repo_path") + ' ) ; do if [ -d $repo ] ; then cd $repo ; echo "repo=$repo" ; git log --pretty=format:"commit=' + commit_format + '%n" --all --since="' + since + '" ; fi ; done',
+                host,
+                self._repo_iteration_command(repo_path),
             ],
             stdout = subprocess.PIPE,
             stderr = subprocess.PIPE
         )
         result, error = p.communicate()
+        return self._parse_git_log_result(result)
 
+
+    """
+    Parses response from git log
+    """
+    def _parse_git_log_result(self, result):
+        new_commits = []
         current_repo = None
         for line in result.split("\n"):
             if line[0:5] == 'repo=':
                 current_repo = line[5:]
                 print "Checking repository %s" % current_repo
             elif line[0:7] == 'commit=':
-                commit_parts = line[7:].split(commit_delimiter)
+                commit_parts = line[7:].split(self._git_log_commit_delimiter)
                 commit_parts.reverse()
                 commit = {}
-                for id in commit_keys:
+                for id in self._git_log_commit_data.keys():
                     commit[id] = commit_parts.pop()
+                commit['repo'] = current_repo
                 print "Found commit %s" % str(commit)
-                if not digest and (not self.commits_by_committer.has_key(commit['committer']) or not self.commits_by_committer[commit['committer']].has_key(commit['hash'])):
-                    headline = "%s committed" % commit['committer']
-                    desc = "%s" % current_repo
-                    desc += "\n%s" % commit['subject']
-                    desc += "\n%s" % commit['time']
-                    if commit['author'] != commit['committer']:
-                        desc += "\nAuthor: %s" % commit['author']
-                    desc += "\n%s" % commit['hash']
-                    self.notify(headline, desc)
+
+                if not self.commits_by_committer.has_key(commit['committer']) or not self.commits_by_committer[commit['committer']].has_key(commit['hash']):
+                    new_commits.append(commit)
+
                 self.commits[commit['hash']] = commit
                 if not self.commits_by_author.has_key(commit['author']):
                     self.commits_by_author[commit['author']] = {}
@@ -101,17 +130,37 @@ class GitTail():
                     self.commits_by_committer[commit['committer']] = {}
                 self.commits_by_committer[commit['committer']][commit['hash']] = commit
 
-        if digest:
-            # Fist run, just summarize status
-            headline = "Commit activity last 24 hours"
-            if len(self.commits) == 0:
-                self.notify(headline, "No activity")
-            else:
-                author_info = []
-                for author in self.commits_by_author:
-                    commit_count = len(self.commits_by_author[author])
-                    author_info.append("%s %d %s" % (author, commit_count, ('commits', 'commit')[commit_count == 1]))
-                self.notify(headline, "\n".join(author_info))
+        return new_commits
+
+
+    """
+    Builds and sends notice message for a single commit
+    """
+    def send_commit_notification(self, commit):
+        headline = "%s committed" % commit['committer']
+        desc = "%s" % commit['repo']
+        desc += "\n%s" % commit['subject']
+        desc += "\n%s" % commit['time']
+        if commit['author'] != commit['committer']:
+            desc += "\nAuthor: %s" % commit['author']
+        desc += "\n%s" % commit['hash']
+        self.notify(headline, desc)
+
+
+    """
+    Builds and sends notice message for the first run
+    """
+    def send_first_run_notification(self):
+        # Fist run, just summarize status
+        headline = "Commit activity last 24 hours"
+        if len(self.commits) == 0:
+            self.notify(headline, "No activity")
+        else:
+            author_info = []
+            for author in self.commits_by_author:
+                commit_count = len(self.commits_by_author[author])
+                author_info.append("%s %d %s" % (author, commit_count, ('commits', 'commit')[commit_count == 1]))
+            self.notify(headline, "\n".join(author_info))
 
 
     def run(self):
