@@ -13,6 +13,7 @@ Author: Tom Sundström
 """
 class GitTail():
     def __init__(self, **kwargs):
+        self.first_run = True
         self.commits = {}
         self.commits_by_author = {}
         self.commits_by_committer = {}
@@ -53,8 +54,6 @@ class GitTail():
         self.growler.notify('commit', headline, message)
 
     def poll(self):
-        first_run = (False, True)[len(self.commits) == 0]
-
         new_commits = []
 
         ssh_hosts = self._config("ssh_hosts")
@@ -64,8 +63,9 @@ class GitTail():
                 for commit in result:
                     new_commits.append(commit)
 
-        if first_run:
+        if self.first_run:
             self.send_first_run_notification()
+            self.first_run = False
             return
 
         if len(new_commits) > 0:
