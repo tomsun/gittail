@@ -121,6 +121,8 @@ class GitTail():
             stderr = subprocess.PIPE
         )
         result, error = p.communicate()
+        if error != '':
+            self.log("subprocess error: '%s'" % error)
         return self._parse_git_log_result(result)
 
 
