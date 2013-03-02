@@ -71,7 +71,7 @@ class GitTail():
     def poll(self):
         new_commits = []
 
-        ssh_hosts = self._config("ssh_hosts")
+        ssh_hosts = self._config("ssh_hosts", [])
         for host in ssh_hosts:
             self.log("Checking SSH host '%s'" % host["host"], 1)
             for path in host["repo_paths"]:
@@ -80,21 +80,27 @@ class GitTail():
                 for commit in result:
                     new_commits.append(commit)
 
-        local_repos = self._config("local_repo_paths")
+        local_repos = self._config("local_repo_paths", [])
         for path in local_repos:
             self.log("Checking local repo pattern '%s'" % path, 1)
             result = self.poll_local_path(path)
             for commit in result:
                 new_commits.append(commit)
 
+        if len(ssh_hosts) == 0 and len(local_repos) == 0:
+            self.log("No repos configured")
+            return False
+
         if self.first_run:
             self.send_first_run_notification()
             self.first_run = False
-            return
+            return True
 
         if len(new_commits) > 0:
             for commit in new_commits:
                 self.send_commit_notification(commit)
+
+        return True
 
 
     """
@@ -209,8 +215,7 @@ class GitTail():
 
 
     def run(self):
-        while True:
-            self.poll()
+        while self.poll():
             interval = self._config("poll_interval", 60)
             self.log("Sleeping %d seconds" % interval, 1)
             time.sleep(interval)
