@@ -52,7 +52,7 @@ class GitTail():
     def notify(self, headline, message):
         self.growler.notify('commit', headline, message)
 
-    def fetch(self):
+    def poll(self):
         first_run = (False, True)[len(self.commits) == 0]
 
         new_commits = self.poll_ssh_host(self._config("host"), self._config("repo_path"))
@@ -165,7 +165,7 @@ class GitTail():
 
     def run(self):
         while True:
-            self.fetch()
+            self.poll()
             time.sleep(self._config("poll_interval", 60))
 
 
