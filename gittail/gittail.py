@@ -130,7 +130,7 @@ class GitTail():
         for line in result.split("\n"):
             if line[0:5] == 'repo=':
                 current_repo = line[5:]
-                print "Checking repository %s" % current_repo
+                self.log("Checking repository %s" % current_repo, 2)
             elif line[0:7] == 'commit=':
                 commit_parts = line[7:].split(self._git_log_commit_delimiter)
                 commit_parts.reverse()
@@ -138,7 +138,7 @@ class GitTail():
                 for id in self._git_log_commit_data.keys():
                     commit[id] = commit_parts.pop()
                 commit['repo'] = current_repo
-                print "Found commit %s" % str(commit)
+                self.log("Found commit %s" % str(commit), 3)
 
                 if not self.commits_by_committer.has_key(commit['committer']) or not self.commits_by_committer[commit['committer']].has_key(commit['hash']):
                     new_commits.append(commit)
