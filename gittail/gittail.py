@@ -121,7 +121,18 @@ class GitTail():
 
 
 if __name__ == "__main__":
-    import config as config_file
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config')
+    args = parser.parse_args()
+
+    if args.config == None:
+        # Use bundled config file
+        import config as config_file
+    else:
+        # Use user specified config file
+        import imp
+        config_file = imp.load_source("config_file", args.config)
 
     gittail_config_dict = {}
     for k in config_file.__dict__:
