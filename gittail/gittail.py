@@ -117,7 +117,7 @@ class GitTail():
     def run(self):
         while True:
             self.fetch()
-            time.sleep(self._config("poll_interval"))
+            time.sleep(self._config("poll_interval", 60))
 
 
 if __name__ == "__main__":
