@@ -2,7 +2,6 @@
 
 import subprocess
 import time
-from growl import Growl
 
 
 """
@@ -17,8 +16,6 @@ class GitTail():
         self.commits = {}
         self.commits_by_author = {}
         self.commits_by_committer = {}
-        self.growler = Growl.GrowlNotifier(applicationName='GitTail', notifications=['commit'])
-        self.growler.register()
 
         # Properties to extract when using git log
         # man git-log for details:
@@ -39,6 +36,11 @@ class GitTail():
         self.verbosity = self._config("verbosity", 0)
         if self._config("quiet", 0) == 1: self.verbosity = -1
 
+        if self._config("use_growl", True):
+            from growl import Growl
+            self.growler = Growl.GrowlNotifier(applicationName='GitTail', notifications=['commit'])
+            self.growler.register()
+
 
     """
     Read config values provided on initialization
@@ -55,7 +57,9 @@ class GitTail():
 
     def notify(self, headline, message):
         self.log("\n- %s: %s\n" % (headline, message))
-        self.growler.notify('commit', headline, message)
+
+        if self._config("use_growl", True):
+            self.growler.notify('commit', headline, message)
 
 
     """

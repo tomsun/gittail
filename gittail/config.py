@@ -28,3 +28,9 @@ local_repo_paths = [
 # How often GitTail opens a new SSH connection and gathers statistics
 #
 # poll_interval = 60
+
+
+# Means of messaging that GitTail should attempt to use for each new event
+# in addition to printing to the console
+#
+# use_growl = True        # OS X (default: True)
