@@ -56,6 +56,17 @@ class GitTail():
     def notify(self, headline, message):
         self.growler.notify('commit', headline, message)
 
+
+    """
+    Logging of less important messages
+    Might be presented in the console depending on the verbosity level,
+    but are not sent to the notification system.
+    """
+    def log(self, message, min_verbosity = 0):
+        if self.verbosity >= min_verbosity:
+            print message
+
+
     def poll(self):
         new_commits = []
 
