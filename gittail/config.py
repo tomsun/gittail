@@ -16,6 +16,15 @@ ssh_hosts = [
 """
 
 
+# Path to the local Git repositories you want to watch
+# Construct the path so that `ls -d $repo_path` enumerates the repos.
+"""
+local_repo_paths = [
+    "~/git/*",
+]
+"""
+
+
 # How often GitTail opens a new SSH connection and gathers statistics
 #
 # poll_interval = 60

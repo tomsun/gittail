@@ -80,6 +80,13 @@ class GitTail():
                 for commit in result:
                     new_commits.append(commit)
 
+        local_repos = self._config("local_repo_paths")
+        for path in local_repos:
+            self.log("Checking local repo pattern '%s'" % path, 1)
+            result = self.poll_local_path(path)
+            for commit in result:
+                new_commits.append(commit)
+
         if self.first_run:
             self.send_first_run_notification()
             self.first_run = False
@@ -123,6 +130,18 @@ class GitTail():
         result, error = p.communicate()
         if error != '':
             self.log("subprocess error: '%s'" % error)
+        return self._parse_git_log_result(result)
+
+
+    """
+    Fetches commit info from a local path using git log
+    """
+    def poll_local_path(self, repo_path):
+        try:
+            result = subprocess.check_output(self._repo_iteration_command(repo_path), shell=True)
+        except subprocess.CalledProcessError, e:
+            self.log("subprocess error: '%s'" % e)
+            return
         return self._parse_git_log_result(result)
 
 
