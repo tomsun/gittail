@@ -3,7 +3,6 @@
 import subprocess
 import time
 from growl import Growl
-import config
 
 
 """
@@ -13,12 +12,31 @@ when new commits are spotted.
 Author: Tom Sundström
 """
 class GitTail():
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.commits = {}
         self.commits_by_author = {}
         self.commits_by_committer = {}
         self.growler = Growl.GrowlNotifier(applicationName='GitTail', notifications=['commit'])
         self.growler.register()
+
+        try:
+            self._config_value = kwargs["config"]
+        except KeyError:
+            self._config_value = {}
+
+
+    """
+    Read config values provided on initialization
+    and allow programmatic default values
+    """
+    def _config(self, name, default=None):
+        try:
+            return self._config_value[name]
+        except KeyError:
+            if default == None:
+                raise KeyError("GitTail configuration value '%s' is not set" % name)
+            return default
+
 
     def notify(self, headline, message):
         self.growler.notify('commit', headline, message)
@@ -46,8 +64,8 @@ class GitTail():
         p = subprocess.Popen(
             [
                 'ssh',
-                config.git_host,
-                'for repo in $( ls -d ' + config.repo_path + ' ) ; do if [ -d $repo ] ; then cd $repo ; echo "repo=$repo" ; git log --pretty=format:"commit=' + commit_format + '%n" --all --since="' + since + '" ; fi ; done',
+                self._config("host"),
+                'for repo in $( ls -d ' + self._config("repo_path") + ' ) ; do if [ -d $repo ] ; then cd $repo ; echo "repo=$repo" ; git log --pretty=format:"commit=' + commit_format + '%n" --all --since="' + since + '" ; fi ; done',
             ],
             stdout = subprocess.PIPE,
             stderr = subprocess.PIPE
@@ -99,9 +117,16 @@ class GitTail():
     def run(self):
         while True:
             self.fetch()
-            time.sleep(config.poll_interval)
+            time.sleep(self._config("poll_interval"))
 
 
 if __name__ == "__main__":
-    client = GitTail()
+    import config as config_file
+
+    gittail_config_dict = {}
+    for k in config_file.__dict__:
+        if k[0:2] != '__':
+            gittail_config_dict[k] = config_file.__dict__[k]
+
+    client = GitTail(config=gittail_config_dict)
     client.run()
