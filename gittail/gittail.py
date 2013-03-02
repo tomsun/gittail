@@ -36,6 +36,9 @@ class GitTail():
         except KeyError:
             self._config_value = {}
 
+        self.verbosity = self._config("verbosity", 0)
+        if self._config("quiet", 0) == 1: self.verbosity = -1
+
 
     """
     Read config values provided on initialization
@@ -180,6 +183,8 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config')
+    parser.add_argument('-v', '--verbose', action='count')
+    parser.add_argument('-q', '--quiet', action='count')
     args = parser.parse_args()
 
     if args.config == None:
@@ -194,6 +199,11 @@ if __name__ == "__main__":
     for k in config_file.__dict__:
         if k[0:2] != '__':
             gittail_config_dict[k] = config_file.__dict__[k]
+
+    if args.verbose != None:
+        gittail_config_dict["verbosity"] = args.verbose
+    if args.quiet != None:
+        gittail_config_dict["quiet"] = args.quiet
 
     client = GitTail(config=gittail_config_dict)
     client.run()
