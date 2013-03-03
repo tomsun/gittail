@@ -299,17 +299,39 @@ class GitTail():
     """
     Builds and sends notice message for the first run
     """
-    def send_first_run_notification(self):
-        # Fist run, just summarize status
-        headline = "Commit activity last 24 hours"
+    def send_digest_notification(self, commits, **kwargs):
+        try:
+            headline = kwargs["headline"]
+        except KeyError:
+            headline = "Commit activity recently"
+
         if len(self.commits) == 0:
             self.notify(headline, "No activity")
-        else:
-            author_info = []
-            for author in self.commits_by_author:
-                commit_count = len(self.commits_by_author[author])
-                author_info.append("%s %d %s" % (author, commit_count, ('commits', 'commit')[commit_count == 1]))
-            self.notify(headline, "\n".join(author_info))
+            return
+
+        commit_per_author = {}
+        for commit in commits:
+            try:
+                commit_per_author[commit["author"]] += 1
+            except KeyError:
+                commit_per_author[commit["author"]] = 1
+            commit_count = len(self.commits_by_author[commit["author"]])
+
+        desc = []
+        for author in commit_per_author:
+            desc.append("%s %d %s" % (author, commit_per_author[author],
+                ('commits', 'commit')[commit_per_author[author] == 1]))
+
+        self.notify(headline, "\n".join(desc))
+
+
+    """
+    Builds and sends notice message for the first run
+    """
+    def send_first_run_notification(self):
+        # Fist run, just summarize status
+        self.send_digest_notification(self.commits.values(),
+            headline="Commit activity last 24 hours")
 
 
     def run(self):
