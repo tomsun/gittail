@@ -121,7 +121,15 @@ class GitTail():
         self.log("\n- %s: %s\n" % (headline, message))
 
         if self._config("use_growl", True):
-            self.growler.notify('commit', headline, message)
+            icon = None
+            sticky = False
+            priority = None
+            callback = None
+            try:
+                self.growler.notify('commit', headline, message, icon, sticky, priority, callback)
+            except TypeError:
+                # Support older bindings
+                self.growler.notify('commit', headline, message, icon, sticky, priority)
 
         if self._config("use_libnotify", True):
             Note=self.libnotify.Notification.new(headline, message, "dialog-information")
