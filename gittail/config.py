@@ -33,5 +33,5 @@ local_repo_paths = [
 # Means of messaging that GitTail should attempt to use for each new event
 # in addition to printing to the console
 #
-# use_growl = True        # OS X, Windows (default: True)
-# use_libnotify = True    # Linux (default: True)
+# use_growl = True        # OS X, Windows (default: if module exists)
+# use_libnotify = True    # Linux (default: if module exists)

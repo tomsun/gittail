@@ -48,7 +48,10 @@ class GitTail():
                 self.libnotify = libnotify
                 self.libnotify.init("GitTail")
             except ImportError, e:
-                self.log("Failed to import gi.repository.Notify")
+                msg = "Failed to import gi.repository.Notify"
+                if self._config("use_libnotify", -1) == True:
+                    raise ImportError(msg)
+                self.log(msg)
                 self._config_value["use_libnotify"] = False
 
         if self._config("use_growl", -1) in [True, -1]:
@@ -61,7 +64,10 @@ class GitTail():
                     import gntp.notifier
                     GrowlNotifier = gntp.notifier.GrowlNotifier
                 except ImportError, e:
-                    self.log("Failed to load Growl bindings")
+                    msg = "Failed to load Growl bindings"
+                    if self._config("use_growl", -1) == True:
+                        raise ImportError(msg)
+                    self.log(msg)
                     self._config_value["use_growl"] = False
 
             if GrowlNotifier != None:
