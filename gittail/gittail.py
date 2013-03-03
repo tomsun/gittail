@@ -261,7 +261,7 @@ class GitTail():
             time.sleep(interval)
 
 
-if __name__ == "__main__":
+def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config')
@@ -289,3 +289,7 @@ if __name__ == "__main__":
 
     client = GitTail(config=gittail_config_dict)
     client.run()
+
+
+if __name__ == "__main__":
+    main()
