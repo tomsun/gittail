@@ -42,7 +42,7 @@ class GitTail():
         self.verbosity = self._config("verbosity", 0)
         if self._config("quiet", 0) == 1: self.verbosity = -1
 
-        if self._config("use_libnotify", True):
+        if self._config("use_libnotify", -1) in [True, -1]:
             try:
                 from gi.repository import Notify as libnotify
                 self.libnotify = libnotify
@@ -51,7 +51,7 @@ class GitTail():
                 self.log("Failed to import gi.repository.Notify")
                 self._config_value["use_libnotify"] = False
 
-        if self._config("use_growl", True):
+        if self._config("use_growl", -1) in [True, -1]:
             GrowlNotifier = None
             try:
                 from growl import Growl
