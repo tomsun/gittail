@@ -162,7 +162,28 @@ class GitTail():
 
 
     def _repo_iteration_command(self, repo_path):
-        return 'for repo in $( ls -d %s ) ; do if [ -d $repo ] ; then cd $repo ; echo "repo=$repo" ; %s ; fi ; done' % (repo_path, self._git_log_command())
+        cmd = []
+
+        # repo_path exands to a list of repos
+        cmd.append('for repo in $( ls -d %s )' % repo_path)
+
+        # a valid repo is a directory
+        cmd.append('do if [ -d $repo ]')
+
+        # cd to root of repo for the benefit of git log
+        cmd.append('then cd $repo')
+
+        # add hint for _git_log_parse_result()
+        cmd.append('echo "repo=$repo"')
+
+        # add list of recent commits
+        cmd.append(self._git_log_command())
+
+        cmd.append('fi')
+        cmd.append('done')
+
+        return " ; ".join(cmd)
+
 
     """
     Fetches commit info from a remote server using SSH and git log
