@@ -318,7 +318,11 @@ class GitTail():
 
 def main():
     import argparse
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="""A command-line utility written in Python that watches
+        a set of Git repositories and sends notifications via Growl or Libnotify
+        when new commits are spotted."""
+    )
     parser.add_argument('-c', '--config')
     parser.add_argument('-v', '--verbose', action='count')
     parser.add_argument('-q', '--quiet', action='count')
