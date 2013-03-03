@@ -300,6 +300,12 @@ class GitTail():
                 for id in self._git_log_commit_data.keys():
                     commit[id] = commit_parts.pop()
                 commit['repo'] = current_repo
+                try:
+                    gitweb_baseurl = kwargs['repo']['gitweb_baseurl']
+                    commit['url'] = "%s?p=%s;a=commitdiff;h=%s" % (
+                        gitweb_baseurl, current_repo, commit['hash'])
+                except KeyError:
+                    pass
 
                 if not self.commits_by_committer.has_key(commit['committer']) or not self.commits_by_committer[commit['committer']].has_key(commit['hash']):
                     new_commits.append(commit)
@@ -332,7 +338,10 @@ class GitTail():
             desc.append("Author: %s" % commit['author'])
         desc.append(commit['hash'])
 
-        self.notify(headline, "\n".join(desc))
+        kwargs = {}
+        if commit.has_key('url'): kwargs['url'] = commit['url']
+
+        self.notify(headline, "\n".join(desc), **kwargs)
 
 
     """

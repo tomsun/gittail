@@ -11,6 +11,7 @@ ssh_hosts = [
             {
                 "base_path": "/home/git",
                 "pattern": "*.git",
+                # "gitweb_baseurl": "https://example.com",
             },
         ],
     },
