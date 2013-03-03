@@ -52,13 +52,24 @@ class GitTail():
                 self._config_value["use_libnotify"] = False
 
         if self._config("use_growl", True):
+            GrowlNotifier = None
             try:
                 from growl import Growl
-                self.growler = Growl.GrowlNotifier(applicationName='GitTail', notifications=['commit'])
-                self.growler.register()
+                GrowlNotifier = Growl.GrowlNotifier
             except ImportError, e:
-                self.log("Failed to load Growl bindings")
-                self._config_value["use_growl"] = False
+                try:
+                    import gntp.notifier
+                    GrowlNotifier = gntp.notifier.GrowlNotifier
+                except ImportError, e:
+                    self.log("Failed to load Growl bindings")
+                    self._config_value["use_growl"] = False
+
+            if GrowlNotifier != None:
+                self.growler = GrowlNotifier(
+                    applicationName='GitTail',
+                    notifications=['commit']
+                )
+                self.growler.register()
 
 
     """
