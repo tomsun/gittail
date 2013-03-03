@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import os
+import sys
 import subprocess
 import time
+
+# Make bundled Git submodules includable
+lib_path = "%s/../lib" % os.path.dirname(__file__)
+[sys.path.append("%s/%s" % (lib_path, path)) for path in os.listdir(lib_path)]
 
 
 """
