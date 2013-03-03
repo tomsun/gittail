@@ -265,7 +265,8 @@ class GitTail():
         result, error = p.communicate()
         if error != '':
             self.log("subprocess error: '%s'" % error)
-        return self._parse_git_log_result(result)
+        return self._parse_git_log_result(result,
+            **{"host": host, "repo": repo})
 
 
     """
@@ -285,7 +286,7 @@ class GitTail():
     """
     Parses response from git log
     """
-    def _parse_git_log_result(self, result):
+    def _parse_git_log_result(self, result, **kwargs):
         new_commits = []
         current_repo = None
         for line in result.split("\n"):
