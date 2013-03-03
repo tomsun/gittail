@@ -135,6 +135,8 @@ class GitTail():
                 self.growler.notify('commit', headline, message, icon, sticky, priority)
 
         if self._config("use_libnotify", True):
+            if kwargs.has_key('url'):
+                message = '<a href="%s">%s</a>' % (kwargs['url'], message)
             Note=self.libnotify.Notification.new(headline, message, "dialog-information")
             Note.show()
 
