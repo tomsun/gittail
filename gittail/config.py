@@ -30,6 +30,12 @@ local_repo_paths = [
 # poll_interval = 60
 
 
+# The amount of simultaneous new commits required, to trigger
+# digest notification instead of individual notifications.
+#
+# digest_threshold = 10   # (default: 10)
+
+
 # Means of messaging that GitTail should attempt to use for each new event
 # in addition to printing to the console
 #

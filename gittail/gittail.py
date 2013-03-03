@@ -166,6 +166,11 @@ class GitTail():
             self.first_run = False
             return True
 
+        if self._config("digest_threshold", 10) != 0:
+            if len(new_commits) >= self._config("digest_threshold", 10):
+                self.send_digest_notification(new_commits)
+                return True
+
         if len(new_commits) > 0:
             for commit in new_commits:
                 self.send_commit_notification(commit)
