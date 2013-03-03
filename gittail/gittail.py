@@ -97,7 +97,7 @@ class GitTail():
             self.log("Checking SSH host '%s'" % host["host"], 1)
             for path in host["repo_paths"]:
                 self.log("Checking repo pattern '%s'" % path, 2)
-                result = self.poll_ssh_host(host["host"], path)
+                result = self.poll_ssh_host(host, path)
                 for commit in result:
                     new_commits.append(commit)
 
@@ -148,7 +148,7 @@ class GitTail():
         p = subprocess.Popen(
             [
                 'ssh',
-                host,
+                host["host"],
                 self._repo_iteration_command(repo_path),
             ],
             stdout = subprocess.PIPE,
