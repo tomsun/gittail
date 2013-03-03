@@ -10,7 +10,7 @@ ssh_hosts = [
             # Construct the path so that `ls -d $repo_path` enumerates the repos
             # you want to watch.
             {
-                "path: "/home/git/*/*.git",
+                "path: "/home/git/*.git",
             },
         ],
     },
