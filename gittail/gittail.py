@@ -282,7 +282,7 @@ class GitTail():
         except subprocess.CalledProcessError, e:
             self.log("subprocess error: '%s'" % e)
             return
-        return self._parse_git_log_result(result)
+        return self._parse_git_log_result(result, **{"repo": repo})
 
 
     """
@@ -308,6 +308,14 @@ class GitTail():
                         gitweb_baseurl, current_repo, commit['hash'])
                 except KeyError:
                     pass
+
+                if not commit.has_key('url'):
+                    try:
+                        github_path = kwargs['repo']['github_paths'][current_repo]
+                        commit['url'] = "https://github.com/%s/commit/%s" % (
+                            github_path, commit['hash'])
+                    except KeyError:
+                        pass
 
                 if not self.commits_by_committer.has_key(commit['committer']) or not self.commits_by_committer[commit['committer']].has_key(commit['hash']):
                     new_commits.append(commit)

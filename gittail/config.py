@@ -26,6 +26,9 @@ local_repos= [
     {
         "base_path": "~/git",
         "pattern": "*",
+        # "github_paths": {
+        #     "gittail": "tomsun/gittail",
+        # },
     },
 ]
 """
