@@ -25,6 +25,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 
+"""
+GitTail
+
+A command-line utility written in Python that watches a set of Git repositories
+and sends notifications via Growl or Libnotify when new commits are spotted.
+"""
+
 import os
 import sys
 import subprocess
@@ -35,12 +42,6 @@ lib_path = "%s/../lib" % os.path.dirname(__file__)
 [sys.path.append("%s/%s" % (lib_path, path)) for path in os.listdir(lib_path)]
 
 
-"""
-Watches a set of remote Git repositores and sends Growl notifications
-when new commits are spotted.
-
-Author: Tom Sundström
-"""
 class GitTail():
     def __init__(self, **kwargs):
         self.first_run = True
