@@ -4,6 +4,25 @@ GitTail
 A command-line utility written in Python that watches a set of Git repositories
 and sends notifications via Growl or Libnotify when new commits are spotted.
 
+GitTail can help emphasize the social aspect of coding. It can be a useful tool
+for teams of developers in that it encourages awareness of and interaction
+around code as it is being written, in an opt-in fashion per individual and per
+given moment.
+
+Git's distributed nature means you are not locked in to a single central
+service. If somebody shares their Git repo with you, you can watch it with
+GitTail.
+
+GitTail can watch:
+
+- Remote repositories accessible over SSH - provided that "git log"
+  can be executed on the remote host.
+
+- Local repositories - useful if you have local copies of the interesting repos
+  which are somehow kept up to date, for example by a script that runs
+  "git fetch" regularly or if a shared filesystem is mounted, which your
+  colleagues push to.
+
 
 INSTALLATION
 ------------
