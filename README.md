@@ -14,8 +14,8 @@ to fetch the dependencies.
 GitTail uses SSH to execute "git log" on a remote server to gather data.
 Hence you need to set up key based SSH authentication to avoid password prompts.
 
-Alter config.py to suit your needs. Configure the path for at least one Git
-repository.
+Alter config.py to suit your needs. Or create a custom config file and load it
+via the -c option. Configure the path for at least one Git repository.
 
 Follow the platform specific instructions below.
 
