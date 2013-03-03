@@ -222,6 +222,9 @@ class GitTail():
             # list repos relative to base path
             cmd.append('cd %s' % repo['base_path'])
 
+            # get absolute version of base_path
+            cmd.append('base_path=`pwd`')
+
         # repo_path exands to a list of repos
         cmd.append('for repo in $( ls -d %s )' % repo['pattern'])
 
@@ -241,7 +244,7 @@ class GitTail():
 
         if repo.has_key('base_path'):
             # cd back to base path before handling next repo
-            cmd.append('cd %s' % repo['base_path'])
+            cmd.append('cd $base_path')
 
         cmd.append('fi')
         cmd.append('done')
