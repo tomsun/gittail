@@ -1,3 +1,12 @@
+GitTail
+=======
+
+A command-line utility written in Python that watches a set of Git repositories
+and sends Growl notifications when new commits are spotted.
+
+
+INSTALLATION
+
 Get yourself a mac.
 
 Install Growl available at http://growl.info
