@@ -167,9 +167,9 @@ class GitTail():
         ssh_hosts = self._config("ssh_hosts", [])
         for host in ssh_hosts:
             self.log("Checking SSH host '%s'" % host["host"], 1)
-            for path in host["repo_paths"]:
-                self.log("Checking repo pattern '%s'" % path, 2)
-                result = self.poll_ssh_host(host, path)
+            for repo in host["repos"]:
+                self.log("Checking repo pattern '%s'" % repo["path"], 2)
+                result = self.poll_ssh_host(host, repo)
                 for commit in result:
                     new_commits.append(commit)
 
@@ -244,12 +244,12 @@ class GitTail():
     """
     Fetches commit info from a remote server using SSH and git log
     """
-    def poll_ssh_host(self, host, repo_path):
+    def poll_ssh_host(self, host, repo):
         p = subprocess.Popen(
             [
                 'ssh',
                 host["host"],
-                self._repo_iteration_command(repo_path),
+                self._repo_iteration_command(repo["path"]),
             ],
             stdout = subprocess.PIPE,
             stderr = subprocess.PIPE
