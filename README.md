@@ -30,11 +30,12 @@ INSTALLATION
 If you've downloaded the source repository, run "git submodule update --init"
 to fetch the dependencies.
 
-GitTail uses SSH to execute "git log" on a remote server to gather data.
-Hence you need to set up key based SSH authentication to avoid password prompts.
-
 Alter config.py to suit your needs. Or create a custom config file and load it
 via the -c option. Configure the path for at least one Git repository.
+
+GitTail uses SSH to execute "git log" on a remote server to gather data.
+Hence you need to set up key based SSH authentication for all SSH hosts you've
+asked GitTail to watch, to avoid repeated password prompts.
 
 Follow the platform specific instructions below.
 
