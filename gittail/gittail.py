@@ -168,7 +168,7 @@ class GitTail():
         for host in ssh_hosts:
             self.log("Checking SSH host '%s'" % host["host"], 1)
             for repo in host["repos"]:
-                self.log("Checking repo pattern '%s'" % repo["path"], 2)
+                self.log("Checking path '%s' for pattern '%s'" % (repo["base_path"], repo["pattern"]), 2)
                 result = self.poll_ssh_host(host, repo)
                 for commit in result:
                     new_commits.append(commit)
@@ -215,11 +215,15 @@ class GitTail():
         return 'git log --pretty=format:"commit=' + commit_format + '%n" --all --since="' + since + '"'
 
 
-    def _repo_iteration_command(self, repo_path):
+    def _repo_iteration_command(self, repo):
         cmd = []
 
+        if repo.has_key('base_path'):
+            # list repos relative to base path
+            cmd.append('cd %s' % repo['base_path'])
+
         # repo_path exands to a list of repos
-        cmd.append('for repo in $( ls -d %s )' % repo_path)
+        cmd.append('for repo in $( ls -d %s )' % repo['pattern'])
 
         # a valid repo is a directory
         # that either has the suffix ".git" (bare repo)
@@ -235,6 +239,10 @@ class GitTail():
         # add list of recent commits
         cmd.append(self._git_log_command())
 
+        if repo.has_key('base_path'):
+            # cd back to base path before handling next repo
+            cmd.append('cd %s' % repo['base_path'])
+
         cmd.append('fi')
         cmd.append('done')
 
@@ -249,7 +257,7 @@ class GitTail():
             [
                 'ssh',
                 host["host"],
-                self._repo_iteration_command(repo["path"]),
+                self._repo_iteration_command(repo),
             ],
             stdout = subprocess.PIPE,
             stderr = subprocess.PIPE
@@ -265,7 +273,9 @@ class GitTail():
     """
     def poll_local_path(self, repo_path):
         try:
-            result = subprocess.check_output(self._repo_iteration_command(repo_path), shell=True)
+            repo = {'pattern': repo_path}
+            result = subprocess.check_output(
+                self._repo_iteration_command(repo), shell=True)
         except subprocess.CalledProcessError, e:
             self.log("subprocess error: '%s'" % e)
             return
