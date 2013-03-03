@@ -173,10 +173,10 @@ class GitTail():
                 for commit in result:
                     new_commits.append(commit)
 
-        local_repos = self._config("local_repo_paths", [])
-        for path in local_repos:
-            self.log("Checking local repo pattern '%s'" % path, 1)
-            result = self.poll_local_path(path)
+        local_repos = self._config("local_repos", [])
+        for repo in local_repos:
+            self.log("Checking local path '%s' for pattern '%s'" % (repo["base_path"], repo["pattern"]), 2)
+            result = self.poll_local_repo(repo)
             for commit in result:
                 new_commits.append(commit)
 
@@ -272,9 +272,8 @@ class GitTail():
     """
     Fetches commit info from a local path using git log
     """
-    def poll_local_path(self, repo_path):
+    def poll_local_repo(self, repo):
         try:
-            repo = {'pattern': repo_path}
             result = subprocess.check_output(
                 self._repo_iteration_command(repo), shell=True)
         except subprocess.CalledProcessError, e:
