@@ -1,0 +1,3 @@
+[submodule "lib/gntp"]
+	path = lib/gntp
+	url = https://github.com/kfdm/gntp.git
