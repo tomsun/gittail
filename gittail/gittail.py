@@ -123,7 +123,11 @@ class GitTail():
 
 
     def notify(self, headline, message, **kwargs):
-        self.log("\n- %s: %s\n" % (headline, message))
+        self.log("")
+        self.log("- %s: %s" % (headline, message))
+        if kwargs.has_key('url'):
+            self.log(kwargs['url'])
+        self.log("")
 
         if self._config("use_growl", True):
             icon = None
