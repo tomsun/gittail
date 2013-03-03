@@ -168,7 +168,9 @@ class GitTail():
         cmd.append('for repo in $( ls -d %s )' % repo_path)
 
         # a valid repo is a directory
-        cmd.append('do if [ -d $repo ]')
+        # that either has the suffix ".git" (bare repo)
+        # or contains a directory named ".git"
+        cmd.append('do if [[ -d $repo && ( ${repo##*.} == "git" || -d $repo/.git ) ]]')
 
         # cd to root of repo for the benefit of git log
         cmd.append('then cd $repo')
