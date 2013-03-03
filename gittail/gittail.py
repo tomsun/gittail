@@ -117,14 +117,17 @@ class GitTail():
             return default
 
 
-    def notify(self, headline, message):
+    def notify(self, headline, message, **kwargs):
         self.log("\n- %s: %s\n" % (headline, message))
 
         if self._config("use_growl", True):
             icon = None
             sticky = False
             priority = None
-            callback = None
+            if kwargs.has_key('url'):
+                callback = kwargs['url']
+            else:
+                callback = None
             try:
                 self.growler.notify('commit', headline, message, icon, sticky, priority, callback)
             except TypeError:
