@@ -101,7 +101,12 @@ class GitTail():
                     applicationName='GitTail',
                     notifications=['commit']
                 )
-                self.growler.register()
+                try:
+                    self.growler.register()
+                except gntp.errors.NetworkError, e:
+                    self.log("gntp.errors.NetworkError: Growl not started?")
+                    if self._config("use_growl", -1) == True:
+                        raise e
 
 
     """
@@ -129,10 +134,15 @@ class GitTail():
             else:
                 callback = None
             try:
-                self.growler.notify('commit', headline, message, icon, sticky, priority, callback)
-            except TypeError:
-                # Support older bindings
-                self.growler.notify('commit', headline, message, icon, sticky, priority)
+                try:
+                    self.growler.notify('commit', headline, message, icon, sticky, priority, callback)
+                except TypeError:
+                    # Support older bindings
+                    self.growler.notify('commit', headline, message, icon, sticky, priority)
+            except Exception, e:
+                self.log("Exception when calling growler.notify: Growl not started?")
+                if self._config("use_growl", -1) == True:
+                    raise e
 
         if self._config("use_libnotify", True):
             if kwargs.has_key('url'):
