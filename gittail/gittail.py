@@ -323,9 +323,13 @@ def main():
         a set of Git repositories and sends notifications via Growl or Libnotify
         when new commits are spotted."""
     )
-    parser.add_argument('-c', '--config')
-    parser.add_argument('-v', '--verbose', action='count')
-    parser.add_argument('-q', '--quiet', action='count')
+    parser.add_argument('-c', '--config',
+        help='use a custom configuration file')
+    parser.add_argument('-v', '--verbose', action='count',
+        help="""set to a value between 1 and 4 to increase the amount of
+                information printed to the console""")
+    parser.add_argument('-q', '--quiet', action='count',
+        help='suppress non-error console messages')
     args = parser.parse_args()
 
     if args.config == None:
