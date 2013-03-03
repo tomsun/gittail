@@ -284,13 +284,16 @@ class GitTail():
     """
     def send_commit_notification(self, commit):
         headline = "%s committed" % commit['committer']
-        desc = "%s" % commit['repo']
-        desc += "\n%s" % commit['subject']
-        desc += "\n%s" % commit['time']
+
+        desc = []
+        desc.append(commit['repo'])
+        desc.append(commit['subject'])
+        desc.append(commit['time'])
         if commit['author'] != commit['committer']:
-            desc += "\nAuthor: %s" % commit['author']
-        desc += "\n%s" % commit['hash']
-        self.notify(headline, desc)
+            desc.append("Author: %s" % commit['author'])
+        desc.append(commit['hash'])
+
+        self.notify(headline, "\n".join(desc))
 
 
     """
