@@ -63,7 +63,8 @@ Git is also required.
 
 ### Windows
 
-Install Growl for Windows available at http://www.growlforwindows.com
+Install Growl for Windows
+http://code.google.com/p/growl-for-windows/
 
 For remote repositories, GitTail attempts to execute the shell command "ssh".
 For local repositories, GitTail needs a proper shell that supports conditionals,
