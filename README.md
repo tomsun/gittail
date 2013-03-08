@@ -46,7 +46,7 @@ Start the watchdog with "python gittail/gittail.py"
 
 Install Growl available at http://growl.info
 
-Git is also required.
+Git is required for local repo support.
 
 The bundled Growl bindings require Growl 2. For compatibility with older
 versions of Growl, try installing these bindings
@@ -58,12 +58,12 @@ https://code.google.com/p/growl/source/browse/Bindings/python?name=maintenance-1
 GitTail attempts to use Libnotify by default,
 via the Python module gi.repository.Notify.
 
-Git is also required.
+Git is required for local repo support.
 
 
 ### Windows
 
-Install Growl for Windows
+To get notifications, install Growl for Windows.
 http://code.google.com/p/growl-for-windows/
 
 For remote repositories, GitTail attempts to execute the shell command "ssh".
