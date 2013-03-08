@@ -37,6 +37,10 @@ import sys
 import subprocess
 import time
 
+import codecs
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+sys.stderr = codecs.getwriter('utf8')(sys.stderr)
+
 # Make bundled Git submodules includable
 lib_path = "%s/../lib" % os.path.dirname(__file__)
 if os.path.isdir(lib_path):
@@ -285,6 +289,8 @@ class GitTail():
     Fetches commit info from a remote server using SSH and git log
     """
     def poll_ssh_host(self, host, repo):
+        env = os.environ
+        env['PYTHONIOENCODING'] = 'utf-8'
         p = subprocess.Popen(
             [
                 'ssh',
@@ -292,9 +298,12 @@ class GitTail():
                 self._repo_iteration_command(repo),
             ],
             stdout = subprocess.PIPE,
-            stderr = subprocess.PIPE
+            stderr = subprocess.PIPE,
+            env=env
         )
         result, error = p.communicate()
+        result = result.decode('utf-8')
+        error = error.decode('utf-8')
         if error != '':
             self.log("subprocess error: '%s'" % error)
         return self._parse_git_log_result(result,
@@ -306,11 +315,14 @@ class GitTail():
     """
     def poll_local_repo(self, repo):
         try:
+            env = os.environ
+            env['PYTHONIOENCODING'] = 'utf-8'
             result = subprocess.check_output(
-                self._repo_iteration_command(repo), shell=True)
+                self._repo_iteration_command(repo), shell=True, env=env)
         except subprocess.CalledProcessError, e:
             self.log("subprocess error: '%s'" % e)
             return
+        result = result.decode('utf-8')
         return self._parse_git_log_result(result, **{"repo": repo})
 
 
