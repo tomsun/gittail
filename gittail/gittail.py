@@ -126,37 +126,45 @@ class GitTail():
             return default
 
 
-    def notify(self, headline, message, **kwargs):
-        self.log("")
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-        self.log("%s %s\n%s" % (timestamp, headline, message))
-        if kwargs.has_key('url'):
-            self.log(kwargs['url'])
-        self.log("")
+    """
+    Format and send messages to console and to the supported notification
+    mechanisms
+    """
+    def notify(self, message_type, data, **kwargs):
+        console_message = self._render_message(
+            message_type, data, 'console', **kwargs)
+        self.log(console_message['message'])
 
         if self._config("use_growl", True):
+            growl_message = self._render_message(
+                message_type, data, 'growl', **kwargs)
+            title = growl_message['title']
+            text = growl_message['text']
             icon = None
             sticky = False
             priority = None
-            if kwargs.has_key('url'):
-                callback = kwargs['url']
+            if growl_message.has_key('callback'):
+                callback = growl_message['callback']
             else:
                 callback = None
             try:
                 try:
-                    self.growler.notify('commit', headline, message, icon, sticky, priority, callback)
+                    self.growler.notify('commit', title, text, icon, sticky, priority, callback)
                 except TypeError:
                     # Support older bindings
-                    self.growler.notify('commit', headline, message, icon, sticky, priority)
+                    self.growler.notify('commit', title, text, icon, sticky, priority)
             except Exception, e:
                 self.log("Exception when calling growler.notify: Growl not started?")
                 if self._config("use_growl", -1) == True:
                     raise e
 
         if self._config("use_libnotify", True):
-            if kwargs.has_key('url'):
-                message = '<a href="%s">%s</a>' % (kwargs['url'], message)
-            Note=self.libnotify.Notification.new(headline, message, "dialog-information")
+            libnotify_message = self._render_message(
+                message_type, data, 'libnotify', **kwargs)
+            Note=self.libnotify.Notification.new(
+                libnotify_message['summary'],
+                libnotify_message['body'],
+                'dialog-information')
             Note.show()
 
 
@@ -194,18 +202,18 @@ class GitTail():
             return False
 
         if self.first_run:
-            self.send_first_run_notification()
+            self.notify('commit_digest_first_run', {'commits': self.commits.values()})
             self.first_run = False
             return True
 
         if self._config("digest_threshold", 10) != 0:
             if len(new_commits) >= self._config("digest_threshold", 10):
-                self.send_digest_notification(new_commits)
+                self.notify('commit_digest', {'commits': new_commits})
                 return True
 
         if len(new_commits) > 0:
             for commit in new_commits:
-                self.send_commit_notification(commit)
+                self.notify('commit', {'commit': commit})
 
         return True
 
@@ -343,62 +351,95 @@ class GitTail():
         return new_commits
 
 
-    """
-    Builds and sends notice message for a single commit
-    """
-    def send_commit_notification(self, commit):
-        headline = "%s committed" % commit['committer']
+    def _render_message(self, message_type, data, target, **kwargs):
+        message = {}
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
 
-        desc = []
-        desc.append(commit['repo'])
-        desc.append(commit['subject'])
-        desc.append(commit['time'])
-        if commit['author'] != commit['committer']:
-            desc.append("Author: %s" % commit['author'])
-        desc.append(commit['hash'])
+        """
+        notification for a single commit
+        """
+        if message_type == 'commit':
+            commit = data['commit']
 
-        kwargs = {}
-        if commit.has_key('url'): kwargs['url'] = commit['url']
+            title = "%s committed" % commit['committer']
 
-        self.notify(headline, "\n".join(desc), **kwargs)
+            body = []
+            body.append(commit['repo'])
+            body.append(commit['subject'])
+            body.append(commit['time'])
+            if commit['author'] != commit['committer']:
+                body.append("Author: %s" % commit['author'])
+            body.append(commit['hash'])
 
+            if target == 'console':
+                if commit.has_key('url'):
+                    body.append(commit['url'])
+                message['message'] = "\n%s %s\n%s\n" % (
+                    timestamp, title, "\n".join(body))
 
-    """
-    Builds and sends notice message for the first run
-    """
-    def send_digest_notification(self, commits, **kwargs):
-        try:
-            headline = kwargs["headline"]
-        except KeyError:
-            headline = "Commit activity recently"
+            elif target == 'growl':
+                message['title'] = title
+                message['text'] = "\n".join(body)
+                if commit.has_key('url'):
+                    message['callback'] = commit['url']
 
-        if len(self.commits) == 0:
-            self.notify(headline, "No activity")
-            return
+            elif target == 'libnotify':
+                message['summary'] = title
+                if commit.has_key('url'):
+                    message['body'] = '<a href="%s">%s</a>' % (
+                        commit['url'], "\n".join(body))
+                else:
+                    message['body'] = "\n".join(body)
 
-        commit_per_author = {}
-        for commit in commits:
-            try:
-                commit_per_author[commit["author"]] += 1
-            except KeyError:
-                commit_per_author[commit["author"]] = 1
-            commit_count = len(self.commits_by_author[commit["author"]])
+        """
+        digest notification for multiple commits
 
-        desc = []
-        for author in commit_per_author:
-            desc.append("%s %d %s" % (author, commit_per_author[author],
-                ('commits', 'commit')[commit_per_author[author] == 1]))
+        the threshold for when digest notification is used rather than
+        individual commit notifiactions, can be set in config (default: 10)
+        """
+        if message_type == 'commit_digest':
+            commits = data['commits']
 
-        self.notify(headline, "\n".join(desc))
+            if kwargs.has_key('title'):
+                title = kwargs['title']
+            else:
+                title = 'Commit activity recently'
 
+            body = []
+            if len(commits) == 0:
+                body.append('No activity')
+            else:
+                commits_per_author = {}
+                for commit in commits:
+                    try:
+                        commits_per_author[commit["author"]] += 1
+                    except KeyError:
+                        commits_per_author[commit["author"]] = 1
+                    commit_count = len(self.commits_by_author[commit["author"]])
+                for author in commits_per_author:
+                    body.append("%s %d %s" % (author, commits_per_author[author],
+                        ('commits', 'commit')[commits_per_author[author] == 1]))
 
-    """
-    Builds and sends notice message for the first run
-    """
-    def send_first_run_notification(self):
-        # Fist run, just summarize status
-        self.send_digest_notification(self.commits.values(),
-            headline="Commit activity last 24 hours")
+            if target == 'console':
+                message['message'] = "\n%s %s\n%s\n" % (
+                    timestamp, title, "\n".join(body))
+
+            elif target == 'growl':
+                message['title'] = title
+                message['text'] = "\n".join(body)
+
+            elif target == 'libnotify':
+                message['summary'] = title
+                message['body'] = "\n".join(body)
+
+        """"
+        notification with results of the first pass after starting GitTail
+        """
+        if message_type == 'commit_digest_first_run':
+            message = self._render_message('commit_digest', data, target,
+                **{'title': 'Commit activity last 24 hours'})
+
+        return message
 
 
     def run(self):
