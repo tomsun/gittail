@@ -118,7 +118,8 @@ class GitTail():
                 import jinja2.exceptions as jinja2_exceptions
                 self.jinja2_exceptions = jinja2_exceptions
                 self.jinja2_templates = Environment(loader=FileSystemLoader(
-                    "%s/templates/jinja2" % os.path.dirname(__file__)))
+                    "%s/templates/jinja2" % os.path.dirname(__file__)),
+                    trim_blocks=True)
             except ImportError:
                 self.log("Failed to import jinja2 - using default messages")
                 self._config_value["use_templates"] = False
