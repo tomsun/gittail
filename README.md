@@ -63,9 +63,6 @@ Git is required for local repo support.
 
 ### Windows
 
-To get notifications, install Growl for Windows.
-http://code.google.com/p/growl-for-windows/
-
 For remote repositories, GitTail attempts to execute the shell command "ssh".
 For local repositories, GitTail needs a proper shell that supports conditionals,
 loops, "ls" etc. The repo analysis is done using "git log".
@@ -74,3 +71,6 @@ This can be accomplished on Windows by running GitTail via Cygwin. Install the
 corresponding Cygwin packages (OpenSSH, Git) depending on which GitTail features
 you intend to use. If you don't have Python installed Cygwin can provide it too.
 http://cygwin.org
+
+To get notifications, install Growl for Windows.
+http://code.google.com/p/growl-for-windows/
