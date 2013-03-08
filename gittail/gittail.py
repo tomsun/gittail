@@ -376,6 +376,7 @@ class GitTail():
 
 
     def _render_template(self, template_path, data, default_value = None):
+        data['default_value'] = default_value
 
         if not self._config("use_templates", True):
             return default_value
