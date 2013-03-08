@@ -40,7 +40,10 @@ import time
 # Make bundled Git submodules includable
 lib_path = "%s/../lib" % os.path.dirname(__file__)
 if os.path.isdir(lib_path):
-    [sys.path.append("%s/%s" % (lib_path, path)) for path in os.listdir(lib_path)]
+    for path in os.listdir(lib_path):
+        submodule_path = "%s/%s" % (lib_path, path)
+        if os.path.isdir(submodule_path):
+            sys.path.append(submodule_path)
 
 
 class GitTail():
