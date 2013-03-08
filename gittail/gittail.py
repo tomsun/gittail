@@ -128,7 +128,8 @@ class GitTail():
 
     def notify(self, headline, message, **kwargs):
         self.log("")
-        self.log("- %s: %s" % (headline, message))
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        self.log("%s %s\n%s" % (timestamp, headline, message))
         if kwargs.has_key('url'):
             self.log(kwargs['url'])
         self.log("")
