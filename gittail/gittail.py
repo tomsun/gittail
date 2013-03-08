@@ -112,6 +112,17 @@ class GitTail():
                     if self._config("use_growl", -1) == True:
                         raise e
 
+        if self._config("use_templates", True):
+            try:
+                from jinja2 import Environment, FileSystemLoader
+                import jinja2.exceptions as jinja2_exceptions
+                self.jinja2_exceptions = jinja2_exceptions
+                self.jinja2_templates = Environment(loader=FileSystemLoader(
+                    "%s/templates/jinja2" % os.path.dirname(__file__)))
+            except ImportError:
+                self.log("Failed to import jinja2 - using default messages")
+                self._config_value["use_templates"] = False
+
 
     """
     Read config values provided on initialization
@@ -349,6 +360,20 @@ class GitTail():
                 self.commits_by_committer[commit['committer']][commit['hash']] = commit
 
         return new_commits
+
+
+    def _render_template(self, template_path, data, default_value = None):
+
+        if not self._config("use_templates", True):
+            return default_value
+
+        try:
+            template = self.jinja2_templates.get_template(template_path)
+            return template.render(**data)
+        except self.jinja2_exceptions.TemplateNotFound, e:
+            if default_value:
+                return default_value
+            raise e
 
 
     def _render_message(self, message_type, data, target, **kwargs):
