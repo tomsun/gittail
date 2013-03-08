@@ -146,14 +146,14 @@ class GitTail():
     Format and send messages to console and to the supported notification
     mechanisms
     """
-    def notify(self, message_type, data, **kwargs):
+    def notify(self, message_type, data):
         console_message = self._render_message(
-            message_type, data, 'console', **kwargs)
+            message_type, data, 'console')
         self.log(console_message['message'])
 
         if self._config("use_growl", True):
             growl_message = self._render_message(
-                message_type, data, 'growl', **kwargs)
+                message_type, data, 'growl')
             title = growl_message['title']
             text = growl_message['text']
             icon = None
@@ -176,7 +176,7 @@ class GitTail():
 
         if self._config("use_libnotify", True):
             libnotify_message = self._render_message(
-                message_type, data, 'libnotify', **kwargs)
+                message_type, data, 'libnotify')
             Note=self.libnotify.Notification.new(
                 libnotify_message['summary'],
                 libnotify_message['body'],
@@ -390,9 +390,9 @@ class GitTail():
             raise e
 
 
-    def _render_message(self, message_type, data, target, **kwargs):
+    def _render_message(self, message_type, data, target):
         message = {}
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        data['timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
 
         """
         notification for a single commit
@@ -400,35 +400,49 @@ class GitTail():
         if message_type == 'commit':
             commit = data['commit']
 
-            title = "%s committed" % commit['committer']
+            data['title'] = "%s committed" % commit['committer']
 
-            body = []
-            body.append(commit['repo'])
-            body.append(commit['subject'])
-            body.append(commit['time'])
+            default_body = []
+            default_body.append(commit['repo'])
+            default_body.append(commit['subject'])
+            default_body.append(commit['time'])
             if commit['author'] != commit['committer']:
-                body.append("Author: %s" % commit['author'])
-            body.append(commit['hash'])
+                default_body.append("Author: %s" % commit['author'])
+            default_body.append(commit['hash'])
 
             if target == 'console':
                 if commit.has_key('url'):
-                    body.append(commit['url'])
-                message['message'] = "\n%s %s\n%s\n" % (
-                    timestamp, title, "\n".join(body))
+                    default_body.append(commit['url'])
+                message['message'] = self._render_template(
+                    'console/commit/message.txt',
+                    data,
+                    "\n%s %s\n%s\n" % (
+                        data['timestamp'],
+                        data['title'],
+                        "\n".join(default_body)))
 
             elif target == 'growl':
-                message['title'] = title
-                message['text'] = "\n".join(body)
+                message['title'] = self._render_template(
+                    'growl/commit/title.txt', data, data['title'])
+
+                message['text'] = self._render_template(
+                    'growl/commit/text.txt', data, "\n".join(default_body))
+
                 if commit.has_key('url'):
                     message['callback'] = commit['url']
 
             elif target == 'libnotify':
-                message['summary'] = title
+                message['summary'] = self._render_template(
+                    'libnotify/commit/summary.txt', data, data['title'])
+
+                default_body = "\n".join(default_body)
                 if commit.has_key('url'):
-                    message['body'] = '<a href="%s">%s</a>' % (
-                        commit['url'], "\n".join(body))
-                else:
-                    message['body'] = "\n".join(body)
+                    default_body = '<a href="%s">%s</a>' % (
+                        commit['url'], default_body)
+
+                message['body'] = self._render_template(
+                    'libnotify/commit/body.html', data, default_body)
+
 
         """
         digest notification for multiple commits
@@ -439,14 +453,12 @@ class GitTail():
         if message_type == 'commit_digest':
             commits = data['commits']
 
-            if kwargs.has_key('title'):
-                title = kwargs['title']
-            else:
-                title = 'Commit activity recently'
+            if not data.has_key('title'):
+                data['title'] = 'Commit activity recently'
 
-            body = []
+            default_body = []
             if len(commits) == 0:
-                body.append('No activity')
+                default_body.append('No activity')
             else:
                 commits_per_author = {}
                 for commit in commits:
@@ -456,27 +468,47 @@ class GitTail():
                         commits_per_author[commit["author"]] = 1
                     commit_count = len(self.commits_by_author[commit["author"]])
                 for author in commits_per_author:
-                    body.append("%s %d %s" % (author, commits_per_author[author],
+                    default_body.append("%s %d %s" % (author, commits_per_author[author],
                         ('commits', 'commit')[commits_per_author[author] == 1]))
+                data['commits_per_author'] = commits_per_author
 
             if target == 'console':
-                message['message'] = "\n%s %s\n%s\n" % (
-                    timestamp, title, "\n".join(body))
+                message['message'] = self._render_template(
+                    'console/commit_digest/message.txt',
+                    data,
+                    "\n%s %s\n%s\n" % (
+                        data['timestamp'],
+                        data['title'],
+                        "\n".join(default_body)))
 
             elif target == 'growl':
-                message['title'] = title
-                message['text'] = "\n".join(body)
+                message['title'] = self._render_template(
+                    'growl/commit_digest/title.txt',
+                    data,
+                    data['title'])
+
+                message['text'] = self._render_template(
+                    'growl/commit_digest/text.txt',
+                    data,
+                    "\n".join(default_body))
 
             elif target == 'libnotify':
-                message['summary'] = title
-                message['body'] = "\n".join(body)
+                message['summary'] = self._render_template(
+                    'libnotify/commit_digest/summary.txt',
+                    data,
+                    data['title'])
+
+                message['body'] = self._render_template(
+                    'libnotify/commit_digest/body.html',
+                    data,
+                    "\n".join(default_body))
 
         """"
         notification with results of the first pass after starting GitTail
         """
         if message_type == 'commit_digest_first_run':
-            message = self._render_message('commit_digest', data, target,
-                **{'title': 'Commit activity last 24 hours'})
+            data['title'] = 'Commit activity last 24 hours'
+            message = self._render_message('commit_digest', data, target)
 
         return message
 
