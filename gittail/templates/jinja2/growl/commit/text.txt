@@ -1,0 +1,7 @@
+{{ commit['repo'] }}
+{{ commit['subject'] }}
+{{ commit['time'] }}
+{% if commit['author'] != commit['committer'] %}
+Author: {{ commit['author'] }}
+{% endif %}
+{{ commit['hash'] }}
