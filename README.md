@@ -72,5 +72,23 @@ corresponding Cygwin packages (OpenSSH, Git) depending on which GitTail features
 you intend to use. If you don't have Python installed Cygwin can provide it too.
 http://cygwin.org
 
+Some Cygwin related notes:
+
+- When Git is installed via Cygwin, it does not know which root CA:s to trust
+  and refuses to fetch https urls, which is inconvenient if you are cloning
+  the GitTail source repository directly, since its submodules refer to https
+  urls. One solution is to trust the CA:s provided by the "ca-certificates"
+  Cygwin package.
+
+- The "screen" package allows you to run GitTail in the background.
+  1. Start the Cygwin terminal
+  2. Start screen: "screen"
+  3. Start GitTail: "python path-to/gittail/gittail.py -c yourconfigfile.py"
+  4. Detach from screen with the keyboard sequence ctrl-A D
+  5. Close the Cygwin terminal
+
+  GitTail is now running in the background without a distracting taskbar item.
+  To re-attach to the screen, open Cygwin and run "screen -x".
+
 To get notifications, install Growl for Windows.
 http://code.google.com/p/growl-for-windows/
