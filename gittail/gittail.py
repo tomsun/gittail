@@ -54,8 +54,6 @@ class GitTail():
     def __init__(self, **kwargs):
         self.first_run = True
         self.commits = {}
-        self.commits_by_author = {}
-        self.commits_by_committer = {}
 
         # Properties to extract when using git log
         # man git-log for details:
@@ -393,19 +391,13 @@ class GitTail():
                     except KeyError:
                         pass
 
-                if not self.commits_by_committer.has_key(commit['committer']) or not self.commits_by_committer[commit['committer']].has_key(commit['hash']):
+                if not self.commits.has_key(commit['hash']):
                     new_commits.append(commit)
                     self.log("Found new commit %s" % str(commit), 3)
                 else:
                     self.log("Found previously seen commit %s" % str(commit), 4)
 
                 self.commits[commit['hash']] = commit
-                if not self.commits_by_author.has_key(commit['author']):
-                    self.commits_by_author[commit['author']] = {}
-                self.commits_by_author[commit['author']][commit['hash']] = commit
-                if not self.commits_by_committer.has_key(commit['committer']):
-                    self.commits_by_committer[commit['committer']] = {}
-                self.commits_by_committer[commit['committer']][commit['hash']] = commit
 
         new_commits.reverse()
 
@@ -508,7 +500,6 @@ class GitTail():
                         commits_per_author[commit["author"]] += 1
                     except KeyError:
                         commits_per_author[commit["author"]] = 1
-                    commit_count = len(self.commits_by_author[commit["author"]])
                 for author in commits_per_author:
                     default_body.append("%s %d %s" % (author, commits_per_author[author],
                         ('commits', 'commit')[commits_per_author[author] == 1]))
