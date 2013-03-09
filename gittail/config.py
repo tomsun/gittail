@@ -45,10 +45,13 @@ local_repos= [
 # digest_threshold = 10   # (default: 10)
 
 
-# Means of messaging that GitTail should attempt to use for each new event
-# in addition to printing to the console
+# Growl configuration
 #
 # use_growl = True        # OS X, Windows (default: if module exists)
+
+
+# Libnotify configuration
+#
 # use_libnotify = True    # Linux (default: if module exists)
 
 
