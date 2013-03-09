@@ -1,11 +1,11 @@
 
 {{ timestamp }} {{ title }}
-{{ commit['repo'] }}
-{{ commit['subject'] }}
-{{ commit['time'] }}
+{{ indent_ts }} {{ commit['repo'] }}
+{{ indent_ts }} {{ commit['subject'] }}
+{{ indent_ts }} {{ commit['time'] }}
 {% if commit['author'] != commit['committer'] %}
-Author: {{ commit['author'] }}
+{{ indent_ts }} Author: {{ commit['author'] }}
 {% endif %}
-{{ commit['hash'] }}
-{{ commit['url'] }}
+{{ indent_ts }} {{ commit['hash'] }}
+{{ indent_ts }} {{ commit['url'] }}
 

@@ -1,10 +1,10 @@
 
 {{ timestamp }} {{ title }}
 {% if not commits %}
-No commits
+{{ indent_ts }} No commits
 {% else %}
 {% for author in commits_per_author %}
-{{ author }} {{ commits_per_author[author] }} {% if commits_per_author[author] == 1 %}
+{{ indent_ts }} {{ author }} {{ commits_per_author[author] }} {% if commits_per_author[author] == 1 %}
 commit
 {% else %}
 commits

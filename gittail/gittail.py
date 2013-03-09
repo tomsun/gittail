@@ -393,6 +393,7 @@ class GitTail():
     def _render_message(self, message_type, data, target):
         message = {}
         data['timestamp'] = time.strftime("%Y-%m-%d %H:%M:%S")
+        data['indent_ts'] = "".join([" " for x in range(0,len(data['timestamp']))])
 
         """
         notification for a single commit
