@@ -15,7 +15,7 @@ GitTail.
 
 GitTail can watch:
 
-- Remote repositories accessible over SSH - provided that "git log"
+- Remote repositories accessible over SSH - provided that ```git log```
   can be executed on the remote host.
 
 - Local repositories - useful if you have local copies of the interesting repos
@@ -27,19 +27,25 @@ GitTail can watch:
 INSTALLATION
 ------------
 
-If you've downloaded the source repository, run "git submodule update --init"
+If you've downloaded the source repository, run
+```
+git submodule update --init
+```
 to fetch the dependencies.
 
 Alter config.py to suit your needs. Or create a custom config file and load it
-via the -c option. Configure the path for at least one Git repository.
+via the ```-c``` option. Configure the path for at least one Git repository.
 
-GitTail uses SSH to execute "git log" on a remote server to gather data.
+GitTail uses SSH to execute ```git log``` on a remote server to gather data.
 Hence you need to set up key based SSH authentication for all SSH hosts you've
 asked GitTail to watch, to avoid repeated password prompts.
 
 Follow the platform specific instructions below.
 
-Start the watchdog with "python gittail/gittail.py"
+Start the watchdog with:
+```
+python gittail/gittail.py
+```
 
 
 ### OS X
@@ -63,9 +69,9 @@ Git is required for local repo support.
 
 ### Windows
 
-For remote repositories, GitTail attempts to execute the shell command "ssh".
+For remote repositories, GitTail attempts to execute the shell command ```ssh```.
 For local repositories, GitTail needs a proper shell that supports conditionals,
-loops, "ls" etc. The repo analysis is done using "git log".
+loops, ```ls``` etc. The repo analysis is done using ```git log```.
 
 This can be accomplished on Windows by running GitTail via Cygwin. Install the
 corresponding Cygwin packages (OpenSSH, Git) depending on which GitTail features
@@ -82,13 +88,16 @@ Some Cygwin related notes:
 
 - The "screen" package allows you to run GitTail in the background.
   1. Start the Cygwin terminal
-  2. Start screen: "screen"
-  3. Start GitTail: "python path-to/gittail/gittail.py -c yourconfigfile.py"
+  2. Start screen: ```screen```
+  3. Start GitTail:
+     ```
+     python path-to/gittail/gittail.py -c yourconfigfile.py
+     ```
   4. Detach from screen with the keyboard sequence ctrl-A D
   5. Close the Cygwin terminal
 
   GitTail is now running in the background without a distracting taskbar item.
-  To re-attach to the screen, open Cygwin and run "screen -x".
+  To re-attach to the screen, open Cygwin and run: ```screen -x```
 
 To get notifications, install Growl for Windows.
 http://code.google.com/p/growl-for-windows/
