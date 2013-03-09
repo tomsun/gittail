@@ -541,6 +541,8 @@ def main():
     )
     parser.add_argument('-c', '--config',
         help='use a custom configuration file')
+    parser.add_argument('-t', '--template',
+        help='use a custom template directory')
     parser.add_argument('-v', '--verbose', action='count',
         help="""set to a value between 1 and 4 to increase the amount of
                 information printed to the console""")
@@ -560,6 +562,10 @@ def main():
     for k in config_file.__dict__:
         if k[0:2] != '__':
             gittail_config_dict[k] = config_file.__dict__[k]
+
+    if args.template != None:
+        gittail_config_dict["use_templates"] = True
+        gittail_config_dict["template_path"] = args.template
 
     if args.verbose != None:
         gittail_config_dict["verbosity"] = args.verbose
