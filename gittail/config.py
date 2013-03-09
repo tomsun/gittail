@@ -5,6 +5,7 @@
 ssh_hosts = [
     {
         "host": "example.com",
+        # "port": 22,
         # "user": "foo",
         "repos": [
             # Construct the path so that `ls -d $base_path/$pattern`

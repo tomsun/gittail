@@ -323,6 +323,11 @@ class GitTail():
         except KeyError:
             args.append(host["host"])
 
+        try:
+            args.append("-p %d" % host["port"])
+        except KeyError:
+            pass
+
         args.append(self._repo_iteration_command(repo))
 
         p = subprocess.Popen(
