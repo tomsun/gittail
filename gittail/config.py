@@ -55,3 +55,5 @@ local_repos= [
 # Message template settings
 #
 # use_templates = True    # (default: True)
+# template_path = 'templates'
+

@@ -121,9 +121,16 @@ class GitTail():
                 from jinja2 import Environment, FileSystemLoader
                 import jinja2.exceptions as jinja2_exceptions
                 self.jinja2_exceptions = jinja2_exceptions
-                self.jinja2_templates = Environment(loader=FileSystemLoader(
-                    "%s/templates/jinja2" % os.path.dirname(__file__)),
+                self.jinja2_default_templates = Environment(
+                    loader=FileSystemLoader(
+                        "%s/templates/jinja2" % os.path.dirname(__file__)),
                     trim_blocks=True)
+                custom_template_path = self._config("template_path", False)
+                if custom_template_path:
+                    self.jinja2_custom_templates = Environment(
+                        loader=FileSystemLoader(
+                            "%s/jinja2" % custom_template_path),
+                        trim_blocks=True)
             except ImportError:
                 self.log("Failed to import jinja2 - using default messages")
                 self._config_value["use_templates"] = False
@@ -382,12 +389,16 @@ class GitTail():
             return default_value
 
         try:
-            template = self.jinja2_templates.get_template(template_path)
+            template = self.jinja2_custom_templates.get_template(template_path)
             return template.render(**data)
-        except self.jinja2_exceptions.TemplateNotFound, e:
-            if default_value:
-                return default_value
-            raise e
+        except (AttributeError, self.jinja2_exceptions.TemplateNotFound), e:
+            try:
+                template = self.jinja2_default_templates.get_template(template_path)
+                return template.render(**data)
+            except self.jinja2_exceptions.TemplateNotFound, e:
+                if default_value:
+                    return default_value
+                raise e
 
 
     def _render_message(self, message_type, data, target):
