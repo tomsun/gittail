@@ -306,7 +306,7 @@ class GitTail():
         cmd.append('fi')
         cmd.append('done')
 
-        return " ; ".join(cmd)
+        return "/bin/bash -c '%s'" % " ; ".join(cmd).replace("'", "\\\'")
 
 
     """
