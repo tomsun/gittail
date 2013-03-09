@@ -54,9 +54,15 @@ Install Growl available at http://growl.info
 
 Git is required for local repo support.
 
-The bundled Growl bindings require Growl 2. For compatibility with older
-versions of Growl, try installing these bindings
+The gntp submodule requires Growl 2. The Growl team appears to only distribute
+Growl 2 builds via Apple's App Store.
+
+If you need compatibility with 1.x builds of Growl, which are currently
+distributed via Google Code and linked to on growl.info's download page, try
+installing these bindings:
 https://code.google.com/p/growl/source/browse/Bindings/python?name=maintenance-1.2
+GitTail will prefer the older bindings if they exist in the path. A downside
+with the older bindings is that they appear not to support url callbacks.
 
 
 ### Linux
