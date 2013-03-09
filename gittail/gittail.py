@@ -407,6 +407,8 @@ class GitTail():
                     self.commits_by_committer[commit['committer']] = {}
                 self.commits_by_committer[commit['committer']][commit['hash']] = commit
 
+        new_commits.reverse()
+
         return new_commits
 
 
