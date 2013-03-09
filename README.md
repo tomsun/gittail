@@ -44,7 +44,7 @@ Follow the platform specific instructions below.
 
 Start the watchdog with:
 ```
-python path-to-gittail/gittail.py
+python path-to-gittail/gittail.py -c yourconfigfile.py
 ```
 
 
