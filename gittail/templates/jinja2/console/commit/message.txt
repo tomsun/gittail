@@ -6,6 +6,5 @@
 {% if commit['author'] != commit['committer'] %}
 {{ indent_ts }} Author: {{ commit['author'] }}
 {% endif %}
-{{ indent_ts }} {{ commit['hash'] }}
 {{ indent_ts }} {{ commit['url'] }}
 

@@ -5,5 +5,4 @@
 {% if commit['author'] != commit['committer'] %}
 Author: {{ commit['author'] }}
 {% endif %}
-{{ commit['hash'] }}
 {% if commit.has_key('url') %}</a>{% endif %}

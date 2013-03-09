@@ -4,4 +4,3 @@
 {% if commit['author'] != commit['committer'] %}
 Author: {{ commit['author'] }}
 {% endif %}
-{{ commit['hash'] }}
