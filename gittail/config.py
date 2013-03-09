@@ -50,3 +50,8 @@ local_repos= [
 #
 # use_growl = True        # OS X, Windows (default: if module exists)
 # use_libnotify = True    # Linux (default: if module exists)
+
+
+# Message template settings
+#
+# use_templates = True    # (default: True)
