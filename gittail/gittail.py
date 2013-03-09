@@ -182,12 +182,29 @@ class GitTail():
                     raise e
 
         if self._config("use_libnotify", True):
+            try:
+                note_config = self._config('libnotify_note')
+            except KeyError:
+                note_config = {}
+            try:
+                for key in note_config[message_type]:
+                    note_config[key] = note_config[message_type][key]
+            except KeyError:
+                pass
+
             libnotify_message = self._render_message(
                 message_type, data, 'libnotify')
             Note=self.libnotify.Notification.new(
                 libnotify_message['summary'],
                 libnotify_message['body'],
                 'dialog-information')
+
+            if note_config.has_key('timeout'):
+                Note.set_timeout(note_config['timeout'])
+
+            if note_config.has_key('urgency'):
+                Note.set_urgency(note_config['urgency'])
+
             Note.show()
 
 

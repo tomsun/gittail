@@ -53,6 +53,22 @@ local_repos= [
 # Libnotify configuration
 #
 # use_libnotify = True    # Linux (default: if module exists)
+"""
+libnotify_note = {
+    'timeout': 10000,
+    'urgency': 0,
+
+    'commit': {
+        'urgency': 1,
+    },
+    'commit_digest': {
+        'timeout': 15000,
+    },
+    'commit_digest_first_run': {
+        'timeout': 5000,
+    },
+}
+"""
 
 
 # Message template settings
