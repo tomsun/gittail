@@ -315,10 +315,16 @@ class GitTail():
     def poll_ssh_host(self, host, repo):
         env = os.environ
         env['PYTHONIOENCODING'] = 'utf-8'
+
+        try:
+            host = "%s@%s" % (host["user"], host["host"])
+        except KeyError:
+            host = host["host"]
+
         p = subprocess.Popen(
             [
                 'ssh',
-                host["host"],
+                host,
                 self._repo_iteration_command(repo),
             ],
             stdout = subprocess.PIPE,
